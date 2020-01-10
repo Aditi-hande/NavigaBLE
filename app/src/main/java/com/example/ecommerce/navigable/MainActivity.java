@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.ecommerce.navigable.dijkstra.DijkstraAlgorithm;
 import com.example.ecommerce.navigable.dijkstra.exception.PathNotFoundException;
@@ -18,15 +20,19 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    ArrayList<Vertex<VertexData>> vertices;
+    ArrayList<Edge> edges;
+    GraphView graphView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GraphView view = new GraphView(this);
+        graphView = findViewById(R.id.graph_view);
         //setContentView(view);
 
-        ArrayList<Vertex<VertexData>> vertices = new ArrayList<>();
-        ArrayList<Edge> edges = new ArrayList<>();
+        vertices = new ArrayList<>();
+        edges = new ArrayList<>();
 
         vertices.add(new Vertex<VertexData>(new VertexData(15,12)));
         vertices.add(new Vertex<VertexData>(new VertexData(37,12)));
@@ -57,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         vertices.add(new Vertex<VertexData>(new VertexData(180,51)));
 
         // Update Vertex List in View
-        view.updateVertices(getVertexData(vertices));
+        graphView.updateVertices(getVertexData(vertices));
         //
 
         edges.add(new EdgeData(vertices.get(0), vertices.get(1)));
@@ -89,17 +95,24 @@ public class MainActivity extends AppCompatActivity {
         edges.add(new EdgeData(vertices.get(13), vertices.get(21)));
         edges.add(new EdgeData(vertices.get(22), vertices.get(17)));
 
-        view.updateEdges(edges);
+        graphView.updateEdges(edges);
 
-        drawGraph(view,edges,vertices);
+        ((Button)findViewById(R.id.graph_button)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int source = Integer.parseInt(((EditText)findViewById(R.id.source)).getText().toString());
+                int dest = Integer.parseInt(((EditText)findViewById(R.id.dest)).getText().toString());
+                drawPath(graphView, source, dest);
+            }
+        });
 
     }
 
-    public void drawGraph(GraphView view, ArrayList<Edge> edges, ArrayList<Vertex<VertexData>> vertices){
+    public void drawPath(GraphView view, int source, int dest){
         try {
             DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(new Graph(edges));
-            dijkstraAlgorithm.execute(vertices.get(0));
-            LinkedList<Vertex> path = dijkstraAlgorithm.getPath(vertices.get(21));
+            dijkstraAlgorithm.execute(vertices.get(source));
+            LinkedList<Vertex> path = dijkstraAlgorithm.getPath(vertices.get(dest));
             List<VertexData> navPath = new ArrayList<>(path.size());
             for (Vertex<VertexData> v : path) {
                 String msg = v.getPayload().x + " , " + v.getPayload().y;
