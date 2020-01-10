@@ -1,5 +1,6 @@
 package com.example.ecommerce.navigable;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.ecommerce.navigable.dijkstra.DijkstraAlgorithm;
 import com.example.ecommerce.navigable.dijkstra.exception.PathNotFoundException;
@@ -92,8 +94,36 @@ public class MainActivity extends AppCompatActivity {
         edges.add(new EdgeData(vertices.get(5), vertices.get(19)));
         edges.add(new EdgeData(vertices.get(15), vertices.get(19)));
         edges.add(new EdgeData(vertices.get(13), vertices.get(21)));
-        edges.add(new EdgeData(vertices.get(13), vertices.get(21)));
         edges.add(new EdgeData(vertices.get(22), vertices.get(17)));
+
+    // Reverse edges
+        edges.add(new EdgeData(vertices.get(1), vertices.get(0)));
+        edges.add(new EdgeData(vertices.get(2), vertices.get(1)));
+        edges.add(new EdgeData(vertices.get(3), vertices.get(2)));
+        edges.add(new EdgeData(vertices.get(4), vertices.get(3)));
+        edges.add(new EdgeData(vertices.get(5), vertices.get(4)));
+        edges.add(new EdgeData(vertices.get(6), vertices.get(5)));
+        edges.add(new EdgeData(vertices.get(7), vertices.get(6)));
+        edges.add(new EdgeData(vertices.get(8), vertices.get(7)));
+
+        edges.add(new EdgeData(vertices.get(20), vertices.get(8)));
+        edges.add(new EdgeData(vertices.get(22), vertices.get(20)));
+
+        edges.add(new EdgeData(vertices.get(10), vertices.get(9)));
+        edges.add(new EdgeData(vertices.get(11), vertices.get(10)));
+        edges.add(new EdgeData(vertices.get(12), vertices.get(11)));
+        edges.add(new EdgeData(vertices.get(13), vertices.get(12)));
+        edges.add(new EdgeData(vertices.get(14), vertices.get(13)));
+        edges.add(new EdgeData(vertices.get(15), vertices.get(14)));
+        edges.add(new EdgeData(vertices.get(16), vertices.get(15)));
+        edges.add(new EdgeData(vertices.get(17), vertices.get(16)));
+
+        edges.add(new EdgeData(vertices.get(18), vertices.get(2)));
+        edges.add(new EdgeData(vertices.get(11), vertices.get(18)));
+        edges.add(new EdgeData(vertices.get(19), vertices.get(5)));
+        edges.add(new EdgeData(vertices.get(19), vertices.get(15)));
+        edges.add(new EdgeData(vertices.get(21), vertices.get(13)));
+        edges.add(new EdgeData(vertices.get(17), vertices.get(22)));
 
         graphView.updateEdges(edges);
 
@@ -102,7 +132,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int source = Integer.parseInt(((EditText)findViewById(R.id.source)).getText().toString());
                 int dest = Integer.parseInt(((EditText)findViewById(R.id.dest)).getText().toString());
-                drawPath(graphView, source, dest);
+                if(source < vertices.size() && dest < vertices.size())
+                    drawPath(graphView, source, dest);
+                else
+                    Toast.makeText(getApplicationContext(), "Invalid input", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -140,6 +173,12 @@ public class MainActivity extends AppCompatActivity {
             this.x = x;
             this.y = y;
         }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            return this.x == ((VertexData)obj).x && this.y == ((VertexData)obj).y;
+        }
+
     }
 
     public class EdgeData extends Edge {

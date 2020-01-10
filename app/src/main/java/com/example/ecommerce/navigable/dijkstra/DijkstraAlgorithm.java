@@ -1,5 +1,8 @@
 package com.example.ecommerce.navigable.dijkstra;
 
+import android.util.Log;
+
+import com.example.ecommerce.navigable.MainActivity;
 import com.example.ecommerce.navigable.dijkstra.exception.PathNotFoundException;
 import com.example.ecommerce.navigable.dijkstra.model.Edge;
 import com.example.ecommerce.navigable.dijkstra.model.Graph;
@@ -55,6 +58,9 @@ public class DijkstraAlgorithm {
                 neighbors.add(edge.getDestination());
             }
         }
+        Log.d("dijk", "node="+
+                ((MainActivity.VertexData)node.getPayload()).x+" "+((MainActivity.VertexData)node.getPayload()).y+
+                " neighbours="+neighbors.size());
         return neighbors;
     }
 

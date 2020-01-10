@@ -95,15 +95,19 @@ public class GraphView extends View {
             canvas.drawPath(path, p);
 
             //Draw Navigation Path
-            p.setStyle(Paint.Style.STROKE);
-            p.setStrokeWidth(8);
-            p.setColor(getResources().getColor(R.color.colorPath, null));
-            path.reset();
-            path.moveTo(navPath.get(0).x * scale, navPath.get(0).y * scale);
-            for(MainActivity.VertexData vertex : navPath) {
-                path.lineTo(vertex.x * scale, vertex.y * scale);
+            if(navPath.size() != 0) {
+
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(8);
+                p.setColor(getResources().getColor(R.color.colorPath, null));
+                path.reset();
+                path.moveTo(navPath.get(0).x * scale, navPath.get(0).y * scale);
+                for (MainActivity.VertexData vertex : navPath) {
+                    path.lineTo(vertex.x * scale, vertex.y * scale);
+                }
+                canvas.drawPath(path, p);
+
             }
-            canvas.drawPath(path, p);
             canvas.restore();
         }
         /*// draw the edge
