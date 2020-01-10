@@ -21,9 +21,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
         GraphView view = new GraphView(this);
-        setContentView(view);
+        //setContentView(view);
 
         ArrayList<Vertex<VertexData>> vertices = new ArrayList<>();
         ArrayList<Edge> edges = new ArrayList<>();
@@ -91,9 +91,13 @@ public class MainActivity extends AppCompatActivity {
 
         view.updateEdges(edges);
 
-        DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(new Graph(edges));
+        drawGraph(view,edges,vertices);
 
+    }
+
+    public void drawGraph(GraphView view, ArrayList<Edge> edges, ArrayList<Vertex<VertexData>> vertices){
         try {
+            DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(new Graph(edges));
             dijkstraAlgorithm.execute(vertices.get(0));
             LinkedList<Vertex> path = dijkstraAlgorithm.getPath(vertices.get(21));
             List<VertexData> navPath = new ArrayList<>(path.size());
@@ -106,9 +110,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (PathNotFoundException e) {
             e.printStackTrace();
         }
-
     }
-
     public ArrayList<VertexData> getVertexData(List<Vertex<VertexData>> list) {
         ArrayList<VertexData> vdList = new ArrayList<>();
         for(Vertex<VertexData> vertex : list) {
