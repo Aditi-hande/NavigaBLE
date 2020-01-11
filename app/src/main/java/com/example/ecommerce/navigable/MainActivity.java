@@ -47,6 +47,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -381,6 +382,29 @@ public class MainActivity extends AppCompatActivity {
         edges.add(new EdgeData(vertices.get(17), vertices.get(22)));*/
 
         graphView.updateEdges(edges);
+
+        final ArrayList<Integer> emergencyExits = new ArrayList<>();
+        db.collection("plans").document("RahulRaj")
+                .collection("places").document("U5YtR9QHWDaCle11aDZ1")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        System.out.println(documentSnapshot.getId());
+                        Map<String,Object> map = documentSnapshot.getData();
+
+                        for(Map.Entry<String,Object> entry : map.entrySet()) {
+                            for(String elem : (List<String>)entry.getValue()) {
+                                if(elem.equals("Emergency Exit")) {
+                                    emergencyExits.add(Integer.parseInt(entry.getKey().replace("Region", "")));
+                                    break;
+                                }
+                            }
+                        }
+                        graphView.updateHighlightedVertices(emergencyExits);
+                    }
+                });
+
 /*
         ((Button)findViewById(R.id.graph_button)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -447,6 +471,10 @@ public class MainActivity extends AppCompatActivity {
     public void displayRegionData(View view) {
         Intent intent = new Intent(getApplicationContext(), RegionActivity.class);
         startActivity(intent);
+    }
+
+    public void displayEmergencyExits(View view) {
+        graphView.setHighlightVertices(!graphView.getHighlightVertices());
     }
 
     public ArrayList<VertexData> getVertexData(List<Vertex<VertexData>> list) {

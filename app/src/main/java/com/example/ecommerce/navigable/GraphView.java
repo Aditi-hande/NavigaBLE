@@ -33,6 +33,8 @@ public class GraphView extends View {
     List<Edge> edges;
     List<MainActivity.VertexData> navPath;
     private int selectedVertex = -1;
+    private List<Integer> highlightedVertices;
+    private boolean highlightVertices = false;
 
     public GraphView(Context context) {
         super(context);
@@ -61,6 +63,7 @@ public class GraphView extends View {
         this.vertices = new ArrayList<>();
         this.edges = new ArrayList<>();
         this.navPath = new ArrayList<>();
+        this.highlightedVertices = new ArrayList<>();
 
         point1 = new Point(200, 300);
         point2 = new Point(700, 800);
@@ -94,9 +97,14 @@ public class GraphView extends View {
 
             int i=0;
             for (MainActivity.VertexData vertex : vertices) {
-                if(i++ == selectedVertex) {
+                i++;
+                if(i == selectedVertex) {
+                    p.setColor(Color.MAGENTA);
+                    canvas.drawCircle(vertex.x * scale, vertex.y * scale, 12, p);
+                    p.setColor(getResources().getColor(R.color.colorPoint, null));
+                } else if(highlightVertices && highlightedVertices.contains(i)) {
                     p.setColor(Color.RED);
-                    canvas.drawCircle(vertex.x * scale, vertex.y * scale, 10, p);
+                    canvas.drawCircle(vertex.x * scale, vertex.y * scale, 13, p);
                     p.setColor(getResources().getColor(R.color.colorPoint, null));
                 } else
                     canvas.drawCircle(vertex.x * scale, vertex.y * scale, 10, p);
@@ -170,6 +178,22 @@ public class GraphView extends View {
         Log.d("EDGES", "size: " + this.navPath.size());
 
         invalidate();
+    }
+
+    public void updateHighlightedVertices(List<Integer> highlightVertices) {
+        this.highlightedVertices = highlightVertices;
+
+        Log.d("HIGHLIGHT", "size: " + this.highlightedVertices.size());
+
+        invalidate();
+    }
+
+    public void setHighlightVertices(boolean value) {
+        this.highlightVertices = value;
+    }
+
+    public boolean getHighlightVertices() {
+        return this.highlightVertices;
     }
 
     public int getRegion() {
