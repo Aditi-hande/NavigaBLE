@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">NavigaBLE</string>
-    <string name="srcx">S[i]</string>
-    <string name="srcy">D{i]</string>
-    <string name="destx">D{i]</string>
-    <string name="desty">Dy</string>
-    <string name="x1">SRC_i</string>
-    <string name="x2">DST_i</string>
+    <string name="src">S[i]</string>
+    <string name="dest">D[i]</string>
+    <string name="x1">SRC</string>
+    <string name="x2">DST</string>
 </resources>

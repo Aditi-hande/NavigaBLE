@@ -35,7 +35,7 @@
         android:layout_toRightOf="@+id/text_view_boat1"
         android:background="@android:drawable/editbox_background"
         android:inputType="number"
-        android:hint="@string/srcx" />
+        android:hint="@string/src" />
 
     <EditText
         android:id="@+id/dest"
@@ -47,7 +47,7 @@
         android:layout_toRightOf="@+id/text_view_boat1"
         android:background="@android:drawable/editbox_background"
         android:inputType="number"
-        android:hint="@string/destx" />
+        android:hint="@string/dest" />
 
     <Button
         android:id="@+id/graph_button"

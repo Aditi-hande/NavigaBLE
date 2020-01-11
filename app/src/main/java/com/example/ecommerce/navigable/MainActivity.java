@@ -1,11 +1,14 @@
 package com.example.ecommerce.navigable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,28 +18,56 @@ import com.example.ecommerce.navigable.dijkstra.exception.PathNotFoundException;
 import com.example.ecommerce.navigable.dijkstra.model.Edge;
 import com.example.ecommerce.navigable.dijkstra.model.Graph;
 import com.example.ecommerce.navigable.dijkstra.model.Vertex;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StreamDownloadTask;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private FirebaseFirestore db;
+    private FirebaseStorage storage;
+    private FirebaseAuth mAuth;
+
     ArrayList<Vertex<VertexData>> vertices;
     ArrayList<Edge> edges;
     GraphView graphView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         graphView = findViewById(R.id.graph_view);
         //setContentView(view);
 
+        mAuth = FirebaseAuth.getInstance();
+
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance("gs://navigable-25e2d.appspot.com");
+
         vertices = new ArrayList<>();
         edges = new ArrayList<>();
 
-        vertices.add(new Vertex<VertexData>(new VertexData(15,12)));
+
+        /*vertices.add(new Vertex<VertexData>(new VertexData(15,12)));
         vertices.add(new Vertex<VertexData>(new VertexData(37,12)));
         vertices.add(new Vertex<VertexData>(new VertexData(49,12)));
         vertices.add(new Vertex<VertexData>(new VertexData(72,12)));
@@ -62,13 +93,109 @@ public class MainActivity extends AppCompatActivity {
 
         vertices.add(new Vertex<VertexData>(new VertexData(180,40)));
         vertices.add(new Vertex<VertexData>(new VertexData(95,65)));
-        vertices.add(new Vertex<VertexData>(new VertexData(180,51)));
+        vertices.add(new Vertex<VertexData>(new VertexData(180,51)));*/
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            loadDataFromFile();
+        } else {
+            mAuth.signInAnonymously().addOnSuccessListener(this, new  OnSuccessListener<AuthResult>() {
+                @Override
+                public void onSuccess(AuthResult authResult) {
+                    loadDataFromFile();
+                }
+            }).addOnFailureListener(this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Toast.makeText(getApplicationContext(), "Authentication Failed", Toast.LENGTH_LONG).show();
+                            exception.printStackTrace();
+                            Log.e("SIGN-IN", "Sign In failure");
+                        }
+                    });
+        }
+    }
+
+
+    public void loadDataFromFile() {
+        db.collection("plans").document("RahulRaj").get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot snapshot) {
+                        try {
+                            downloadFile(snapshot);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    public void downloadFile(DocumentSnapshot snapshot) throws IOException {
+            final File temp = File.createTempFile("floor-plan", "txt");
+
+            storage.getReference(snapshot.get("URL", String.class).replace("https://", "").replace("gs://", ""))
+                    .getFile(temp)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            loadValues(temp);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+    }
+
+    public void loadValues(File file) {
+        String line="";
+        //Input from database graph file in BufferedReader
+        try{
+            BufferedReader br=new BufferedReader(new FileReader(file));
+            while((line=br.readLine())!=null) {
+                if(line.equals("V")) {
+                    continue;
+                }else if(line.equals("E")){
+                    break;
+                }else {
+                    String[] splitV=line.split("\\s");
+                    int v1=Integer.parseInt(splitV[1]);
+                    int v2=Integer.parseInt(splitV[2]);
+                    //Uncomment line below in Android
+                    vertices.add(new Vertex<VertexData>(new VertexData(v1,v2)));
+                }
+            }
+            while((line=br.readLine())!=null) {
+                String[] splitE=line.split("\\s");
+                int e1=Integer.parseInt(splitE[1]);
+                int e2=Integer.parseInt(splitE[2]);
+                //Uncomment two lines below in Android
+                edges.add(new EdgeData(vertices.get(e1),vertices.get(e2)));
+                edges.add(new EdgeData(vertices.get(e2),vertices.get(e1)));
+            }
+            br.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
         // Update Vertex List in View
         graphView.updateVertices(getVertexData(vertices));
         //
 
-        edges.add(new EdgeData(vertices.get(0), vertices.get(1)));
+        /*edges.add(new EdgeData(vertices.get(0), vertices.get(1)));
         edges.add(new EdgeData(vertices.get(1), vertices.get(2)));
         edges.add(new EdgeData(vertices.get(2), vertices.get(3)));
         edges.add(new EdgeData(vertices.get(3), vertices.get(4)));
@@ -123,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         edges.add(new EdgeData(vertices.get(19), vertices.get(5)));
         edges.add(new EdgeData(vertices.get(19), vertices.get(15)));
         edges.add(new EdgeData(vertices.get(21), vertices.get(13)));
-        edges.add(new EdgeData(vertices.get(17), vertices.get(22)));
+        edges.add(new EdgeData(vertices.get(17), vertices.get(22)));*/
 
         graphView.updateEdges(edges);
 
@@ -136,6 +263,13 @@ public class MainActivity extends AppCompatActivity {
                     drawPath(graphView, source, dest);
                 else
                     Toast.makeText(getApplicationContext(), "Invalid input", Toast.LENGTH_LONG).show();
+
+                try {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 

@@ -22,7 +22,7 @@ public class GraphView extends View {
     private Paint p;
     private Path path;
 
-    private int scale = 10;
+    private int scale = 1;
 
     private Point point1;
     private Point point2;
