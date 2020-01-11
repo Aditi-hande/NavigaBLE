@@ -1,0 +1,54 @@
+package com.example.ecommerce.navigable;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class RegionActivity extends AppCompatActivity {
+
+    TextView textView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_region);
+
+        textView = (TextView) findViewById(R.id.list_text_view);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("plans").document("RahulRaj")
+                .collection("places").document("U5YtR9QHWDaCle11aDZ1")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        System.out.println(documentSnapshot.getId());
+                        Map<String,Object> map = documentSnapshot.getData();
+                        String listStr = "";
+                        for(Map.Entry<String,Object> entry : map.entrySet()) {
+                            listStr = listStr.concat("Region-"+entry.getKey()+"\n\t\t\t");
+                            for(String elem : (List<String>)entry.getValue()) {
+                                listStr = listStr.concat(elem+", ");
+                                System.out.println(elem);
+                            }
+                            listStr = listStr.concat("\n\n");
+                            System.out.println(listStr);
+                        }
+                        textView.setText(listStr);
+                    }
+                });
+
+    }
+
+
+}

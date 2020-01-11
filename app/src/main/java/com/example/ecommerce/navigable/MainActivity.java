@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Vertex<VertexData>> vertices;
     ArrayList<Edge> edges;
     GraphView graphView;
+
+    private int source = -1, dest = -1;
+    private boolean isSourceSet = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -253,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
         edges.add(new EdgeData(vertices.get(17), vertices.get(22)));*/
 
         graphView.updateEdges(edges);
-
+/*
         ((Button)findViewById(R.id.graph_button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -272,25 +276,55 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+*/
+        graphView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isSourceSet) {
+                    dest = graphView.getRegion();
+                    drawPath(graphView, source, dest);
+                    isSourceSet = false;
+                    source = -1; dest = -1;
+                } else {
+                    drawPath(graphView, source, dest);
+                    source = graphView.getRegion();
+                    if(source > -1)
+                        isSourceSet = true;
+                    else
+                        isSourceSet = false;
+                }
+
+            }
+        });
 
     }
 
     public void drawPath(GraphView view, int source, int dest){
-        try {
-            DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(new Graph(edges));
-            dijkstraAlgorithm.execute(vertices.get(source));
-            LinkedList<Vertex> path = dijkstraAlgorithm.getPath(vertices.get(dest));
-            List<VertexData> navPath = new ArrayList<>(path.size());
-            for (Vertex<VertexData> v : path) {
-                String msg = v.getPayload().x + " , " + v.getPayload().y;
-                Log.d("PATH", msg);
-                navPath.add(v.getPayload());
+        if(source > -1 && dest > -1) {
+            try {
+                DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(new Graph(edges));
+                dijkstraAlgorithm.execute(vertices.get(source));
+                LinkedList<Vertex> path = dijkstraAlgorithm.getPath(vertices.get(dest));
+                List<VertexData> navPath = new ArrayList<>(path.size());
+                for (Vertex<VertexData> v : path) {
+                    String msg = v.getPayload().x + " , " + v.getPayload().y;
+                    Log.d("PATH", msg);
+                    navPath.add(v.getPayload());
+                }
+                view.updateNavPath(navPath);
+            } catch (PathNotFoundException e) {
+                e.printStackTrace();
             }
-            view.updateNavPath(navPath);
-        } catch (PathNotFoundException e) {
-            e.printStackTrace();
+        } else {
+            view.updateNavPath(new ArrayList<VertexData>());
         }
     }
+
+    public void displayRegionData(View view) {
+        Intent intent = new Intent(getApplicationContext(), RegionActivity.class);
+        startActivity(intent);
+    }
+
     public ArrayList<VertexData> getVertexData(List<Vertex<VertexData>> list) {
         ArrayList<VertexData> vdList = new ArrayList<>();
         for(Vertex<VertexData> vertex : list) {

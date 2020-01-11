@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
-    <TextView
+    <!--TextView
         android:id="@+id/text_view_boat3"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -57,16 +57,19 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="20dp"
-        android:hint="DrGraph" />
-    <!--FrameLayout
-        android:id="@+id/graph_frame"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/-->
+        android:hint="DrGraph" /-->
 
     <com.example.ecommerce.navigable.GraphView
         android:id="@+id/graph_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="50dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Region Data"
+        android:onClick="displayRegionData"/>
 </RelativeLayout>
