@@ -403,6 +403,13 @@ public class MainActivity extends AppCompatActivity {
                         }
                         graphView.updateHighlightedVertices(emergencyExits);
                     }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("HIGHLIGHT", e.getMessage());
+                        e.printStackTrace();
+                    }
                 });
 
 /*
