@@ -6,4 +6,10 @@
     <color name="colorPath">#4CAF50</color>
     <color name="colorPoint">#3F51B5</color>
     <color name="colorEdge">#92FF8C00</color>
+
+    <color name="colorTransBg">#26000000</color>
+
+
+
 </resources>
+

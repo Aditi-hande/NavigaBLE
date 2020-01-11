@@ -91,6 +91,7 @@ public class GraphView extends View {
             canvas.save();
             canvas.rotate(90);
             canvas.translate(50, -800);
+
             int i=0;
             for (MainActivity.VertexData vertex : vertices) {
                 if(i++ == selectedVertex) {

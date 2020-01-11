@@ -1,6 +1,7 @@
 package com.example.ecommerce.navigable;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -15,14 +16,14 @@ import java.util.Map;
 
 public class RegionActivity extends AppCompatActivity {
 
-    TextView textView;
+    CardView cardView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_region);
 
-        textView = (TextView) findViewById(R.id.list_text_view);
+        cardView = (CardView) findViewById(R.id.card_view);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -44,7 +45,7 @@ public class RegionActivity extends AppCompatActivity {
                             listStr = listStr.concat("\n\n");
                             System.out.println(listStr);
                         }
-                        textView.setText(listStr);
+
                     }
                 });
 
