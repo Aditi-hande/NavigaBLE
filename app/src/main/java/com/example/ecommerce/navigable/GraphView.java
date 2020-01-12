@@ -95,16 +95,24 @@ public class GraphView extends View {
             canvas.rotate(90);
             canvas.translate(50, -800);
 
-            int i=0;
+            int i=-1;
             for (MainActivity.VertexData vertex : vertices) {
                 i++;
-                if(i == selectedVertex) {
+                if(i == 0) {
+                    p.setColor(Color.BLUE);
+                    canvas.drawCircle(vertex.x * scale, vertex.y * scale, 12, p);
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setStrokeWidth(1.0f);
+                    canvas.drawCircle(vertex.x * scale, vertex.y * scale, 20, p);
+                    p.setStyle(Paint.Style.FILL);
+                    p.setColor(getResources().getColor(R.color.colorPoint, null));
+                } else if(i == selectedVertex) {
                     p.setColor(Color.MAGENTA);
                     canvas.drawCircle(vertex.x * scale, vertex.y * scale, 12, p);
                     p.setColor(getResources().getColor(R.color.colorPoint, null));
                 } else if(highlightVertices && highlightedVertices.contains(i)) {
                     p.setColor(Color.RED);
-                    canvas.drawCircle(vertex.x * scale, vertex.y * scale, 13, p);
+                    canvas.drawCircle(vertex.x * scale, vertex.y * scale, 15, p);
                     p.setColor(getResources().getColor(R.color.colorPoint, null));
                 } else
                     canvas.drawCircle(vertex.x * scale, vertex.y * scale, 10, p);
@@ -188,8 +196,13 @@ public class GraphView extends View {
         invalidate();
     }
 
+    public List<Integer> getHighlightedVertices() {
+        return this.highlightedVertices;
+    }
+
     public void setHighlightVertices(boolean value) {
         this.highlightVertices = value;
+        invalidate();
     }
 
     public boolean getHighlightVertices() {

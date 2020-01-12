@@ -27,8 +27,8 @@ public class RegionActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("plans").document("RahulRaj")
-                .collection("places").document("U5YtR9QHWDaCle11aDZ1")
+        db.collection("plans").document("PAirport")
+                .collection("places").document("1ktTiRC3g5c8AVdJWTM5") //U5YtR9QHWDaCle11aDZ1
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override

@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Edge> edges;
     GraphView graphView;
 
-    private int source = -1, dest = -1;
-    private boolean isSourceSet = false;
+    private int source = 0, dest = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -135,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
 
         vertices = new ArrayList<>();
         edges = new ArrayList<>();
-
 
         /*vertices.add(new Vertex<VertexData>(new VertexData(15,12)));
         vertices.add(new Vertex<VertexData>(new VertexData(37,12)));
@@ -251,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void loadDataFromFile() {
-        db.collection("plans").document("RahulRaj").get()
+        db.collection("plans").document("PAirport").get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot snapshot) {
@@ -384,8 +383,8 @@ public class MainActivity extends AppCompatActivity {
         graphView.updateEdges(edges);
 
         final ArrayList<Integer> emergencyExits = new ArrayList<>();
-        db.collection("plans").document("RahulRaj")
-                .collection("places").document("U5YtR9QHWDaCle11aDZ1")
+        db.collection("plans").document("PAirport")
+                .collection("places").document("1ktTiRC3g5c8AVdJWTM5")
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -395,8 +394,10 @@ public class MainActivity extends AppCompatActivity {
 
                         for(Map.Entry<String,Object> entry : map.entrySet()) {
                             for(String elem : (List<String>)entry.getValue()) {
-                                if(elem.equals("Emergency Exit")) {
+                                Log.d("EXITS", elem);
+                                if(elem.equals("Emergency exit")) {
                                     emergencyExits.add(Integer.parseInt(entry.getKey().replace("Region", "")));
+                                    Log.d("EXIT", "selected, size:"+emergencyExits.size());
                                     break;
                                 }
                             }
@@ -435,19 +436,8 @@ public class MainActivity extends AppCompatActivity {
         graphView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isSourceSet) {
-                    dest = graphView.getRegion();
-                    drawPath(graphView, source, dest);
-                    isSourceSet = false;
-                    source = -1; dest = -1;
-                } else {
-                    drawPath(graphView, source, dest);
-                    source = graphView.getRegion();
-                    if(source > -1)
-                        isSourceSet = true;
-                    else
-                        isSourceSet = false;
-                }
+                dest = graphView.getRegion();
+                drawPath(graphView, source, dest);
 
             }
         });
@@ -462,8 +452,8 @@ public class MainActivity extends AppCompatActivity {
                 LinkedList<Vertex> path = dijkstraAlgorithm.getPath(vertices.get(dest));
                 List<VertexData> navPath = new ArrayList<>(path.size());
                 for (Vertex<VertexData> v : path) {
-                    String msg = v.getPayload().x + " , " + v.getPayload().y;
-                    Log.d("PATH", msg);
+                    /*String msg = v.getPayload().x + " , " + v.getPayload().y;
+                    Log.d("PATH", msg);*/
                     navPath.add(v.getPayload());
                 }
                 view.updateNavPath(navPath);
@@ -482,6 +472,27 @@ public class MainActivity extends AppCompatActivity {
 
     public void displayEmergencyExits(View view) {
         graphView.setHighlightVertices(!graphView.getHighlightVertices());
+        if(graphView.getHighlightVertices()) {
+            try {
+                DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(new Graph(edges));
+                dijkstraAlgorithm.execute(vertices.get(source));
+                List<Integer> exits = graphView.getHighlightedVertices();
+                dest = exits.get(0);
+                for (Integer exit : exits) {
+                    dest = (dijkstraAlgorithm.getDistance(vertices.get(dest)) > dijkstraAlgorithm.getDistance(vertices.get(exit))) ? exit : dest;
+                }
+                LinkedList<Vertex> path = dijkstraAlgorithm.getPath(vertices.get(dest));
+                List<VertexData> navPath = new ArrayList<>(path.size());
+                for (Vertex<VertexData> v : path) {
+                    navPath.add(v.getPayload());
+                }
+                graphView.updateNavPath(navPath);
+            } catch (PathNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            graphView.updateNavPath(new ArrayList<VertexData>());
+        }
     }
 
     public ArrayList<VertexData> getVertexData(List<Vertex<VertexData>> list) {
