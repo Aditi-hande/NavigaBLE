@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         fab1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), RegionActivity.class));
+                startActivityForResult(new Intent(getApplicationContext(), RegionActivity.class), 0xABCD);
             }
         });
 
@@ -248,6 +249,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 0xABCD) {
+            if(resultCode == Activity.RESULT_OK) {
+                int region =  data.getIntExtra("region", -1);
+                dest = region;
+                drawPath(graphView, source, dest);
+            }
+        }
+    }
 
     public void loadDataFromFile() {
         db.collection("plans").document("PAirport").get()
